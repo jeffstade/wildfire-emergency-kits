@@ -27,7 +27,7 @@ This final algorithm outputs a prioritized list of census tracts to target. Cens
 
 Ultimately, the goal is for CalKit to make it into the hands of program managers who can facilitate the distribution of emergency supply kits, leveraging a user-friendly interface that helps them optimize allocation based on the households who need the support the most.
 
-**[Watch a video pitch of our alogirthm and application](https://www.youtube.com/watch?v=LJHMXxgcA64)**
+**[Watch a video pitch of our algorithm and application](https://www.youtube.com/watch?v=LJHMXxgcA64)**
 
 ```{r load libraries and functions, message=FALSE, warning=FALSE}
 ## Setup
@@ -587,7 +587,7 @@ fishnet_final_weatherfeatures %>%
 ## Additional Feature Engineering
 
 ### Feature: Tree Mortality Hazard Classification
-Areas with trees classified as being at higher risk of mortality may contribute to the level of wildfire risk - more dead trees means more fuel for fires to burn. CAL FIRE's Fire and Resource Assessment Program (FRAP) and the U.S. Forest Service have a classification system for areas of high tree mortality, which could be a decent predictor for wildfire risk. AFter loading the data source, the count of cells with at least one intersection of a tree "tier one hazard zone" is calculated to create the feature variable `n_tier1hazard_int`.
+Areas with trees classified as being at higher risk of mortality may contribute to the level of wildfire risk - more dead trees means more fuel for fires to burn. CAL FIRE's Fire and Resource Assessment Program (FRAP) and the U.S. Forest Service have a classification system for areas of **high tree mortality**, which could be a decent predictor for wildfire risk. After loading the data source, the count of cells with at least one intersection of a tree "tier one hazard zone" is calculated to create the feature variable `n_tier1hazard_int`.
 
 ```{r tier1 tree mortality feature, message=FALSE, warning=FALSE, results='hide'}
 tier1hazard_treemortality <- st_read("https://opendata.arcgis.com/datasets/a71a85136b0b414ea734fdfbe3d7674a_0.geojson") %>% st_transform(st_crs(fishnet_final))
@@ -598,7 +598,7 @@ fishnet_final <- fishnet_final %>% mutate(n_tier1hazard_int = lengths(st_interse
 ```
 
 ### Feature: Distance to Nearest Electric Substation
-Given the presence of high voltage electricity coupled with flammable liquids and industrial equipment, internal malfunctions and damages to electric substations increase risk of fire eruption and spread. In 2018, electric company PG&E neglected maintenance of transmission infrastructure, which sparked the Camp Fire in Paradise, California that caused widespread structural damage and the deaths of over 80 people. Electric substations connect transmission lines, and contain high-voltage switches control electricity flow and magnitude. Given the high amount of electricity at these central hubs relative to the transmission lines, proximity to substations is explored as a fire risk feature.
+Given the presence of high voltage electricity coupled with flammable liquids and industrial equipment, internal malfunctions and damages to electric substations increase risk of fire eruption and spread. In 2018, electric company PG&E neglected maintenance of transmission infrastructure, which sparked the Camp Fire in Paradise, California that caused widespread structural damage and the deaths of over 80 people. Electric substations connect transmission lines, and contain high-voltage switches control electricity flow and magnitude. Given the high amount of electricity at these central hubs relative to the transmission lines, **proximity to electric substations** is explored as a fire risk feature.
 
 The point data for electric substations comes from the California State Geoportal, and the distance from each fishnet cell's centroid to the nearest substation is calculated (in meters). The map below illustrates this `dist_elec_substation` variable. The darker cells, indicating closer distance, are concentrated around the middle of the study area (which covers lots of Los Angeles County).
 
@@ -632,7 +632,7 @@ ggplot()+
 ```
 
 ## Feature: Distance to nearest CAL FIRE or Contract Facility
-The distance to the nearest CAL FIRE or affiliated contract fire facility is also explored as an additional feature. Similarly to the substations, the distance is calculated from each cell's centroid to the nearest facility and stored in a new variable called `dist_fire_facility`. The map below shows that areas in the southern part of the study area (mainly San Diego county) are closer, on average, to such facilities, where those in the more northern parts are further away.
+The **distance to the nearest CAL FIRE or affiliated contract fire facility** is also explored as an additional feature. Similarly to the substations, the distance is calculated from each cell's centroid to the nearest facility and stored in a new variable called `dist_fire_facility`. The map below shows that areas in the southern part of the study area (mainly San Diego county) are closer, on average, to such facilities, where those in the more northern parts are further away.
 
 ```{r dist to fire facility, message=FALSE, warning=FALSE, results='hide'}
 #read in facilities
@@ -669,7 +669,7 @@ After looking back at the outcome variable map of where the fire incidents occur
 
 The Local Moran’s _I_ statistic is calculated to explore local spatial autocorrelation of fire incidents. It explores spatial clustering by measuring how similar locations are to their immediate neighbors. High Local Moran’s I values indicate that there is evidence of local clustering.
 
-The results of the Local Moran’s I are plotted below, alongside the count of incidents (on the far left). Also mapped are the p-value and significant hotspots (cells with higher local incident counts than expected).
+The results of the Local Moran’s _I_ are plotted below, alongside the count of incidents (on the far left). Also mapped are the p-value and significant hotspots (cells with higher local incident counts than expected).
 
 Based on these maps, there is evidence of spatial clustering exists in the middle part of the study area - specifically, Los Angeles County and into Ventura.
 
@@ -730,7 +730,7 @@ fishnet_final$n_fires_int.isSig.dist <-as.numeric(fishnet_final$n_fires_int.isSi
 
 ```
 
-In order to develop a model that generalizes well, Local Moran’s _I_ is added as a feature in the final fishnet grid, using a dummy variable to indicate that a cell is part of a significant cluster. Then, the average nearest neighbor distance is measured from the centroid of each grid cell to its nearest significant cluster. The p-value chosen is 0.0000001 - the smaller the p-value, the more significant the clusters.
+In order to develop a model that generalizes well, **Local Moran’s _I_** is added as a feature in the final fishnet grid, using a dummy variable to indicate that a cell is part of a significant cluster. Then, the average nearest neighbor distance is measured from the centroid of each grid cell to its nearest significant cluster. The p-value chosen is 0.0000001 - the smaller the p-value, the more significant the clusters.
 
 ```{r nn distance to hotspots map, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
 The distance to highly significant hotspots for fire incidents is shown in this map below.
@@ -783,7 +783,7 @@ summ(reg.binomial)
 ```
 
 ### Confusion Matrix and Statistics
-The confusion matrix and its statistics for the regression are shown below. The matrix of 0s and 1s shows the comparison between the observed and predicted instances of fire occurrence at the 50% threshold. Sensitivity (the ability to predict true positive outcomes) here is ~46%, and specificity (the ability to predict true negative outcomes) is ~91%. This indicates that the model is better at predicting ares with an absence of a fire, and no fire occurred. 
+The confusion matrix and its statistics for the regression are shown below. The matrix of 0s and 1s shows the comparison between the observed and predicted instances of fire occurrence at the 50% threshold. Sensitivity (the ability to predict true positive outcomes) here is ~46%, and specificity (the ability to predict true negative outcomes) is ~91%. **This indicates that the model is better at predicting ares with an absence of a fire, and no fire occurred.** 
 
 ```{r reg testprobs, message=FALSE, warning=FALSE}
 testProbs <- data.frame(Outcome = as.factor(dataTest$prev_fire),
@@ -889,18 +889,18 @@ dplyr::select(cvFit.reg1$resample, -Resample) %>%
 
 ## Costs and Benefits of Identifying False Positives and Negatives
 
-Our model will not have perfect accuracy, and when determining the optimal threshold it’s important to consider the costs and benefits of inaccurately predicting data. Keep in mind that the ultimate use case for this data is to help inform where emergency supply kits are allocated. For the sake of this section, let’s make some approximations and assume the following:
+Our model will not have perfect accuracy, and when determining the optimal threshold it’s important to consider the costs and benefits of inaccurately predicting data. **Keep in mind that the ultimate use case for this data is to help inform where emergency supply kits are allocated.** For the sake of this section, let’s make some approximations and assume the following:
 
 * Emergency supply kits cost $50
 * Predictions are being made at the cell-level
 * Kits are being distributed to every household in a cell
 
-Type of prediction | What this means | Total cost | Total benefit
+Type of Prediction | What This Means | Total Cost | Total Benefit
 ------------- | ------------- | ------------- | -------------
 True Positives | We predict a fire and there is one | Households in this tract are more likely to be prioritized for a kit, costing $50/household | These households will be better prepared for a future evacuation
-False Positives | We predict a fire and there is not one | **Households in this tract are more likely to be prioritized for a kit, costing $50/household** | No immediate benefit, although these kits do not expire after a year and these households will be better prepared for a future evacuation
+False Positives | We predict a fire and there is not one | Households in this tract are more likely to be prioritized for a kit, costing $50/household | No immediate benefit, although these kits do not expire after a year and these households will be better prepared for a future evacuation
 True Negatives | We do not predict a fire and there is not one | Households here are less likely to be prioritized for a kit | None
-False Negatives | We do not predict a fire and there is one | Households here are less likely to be prioritized for a kit, and **these households will be less prepared for a fire and at greater risk for evacuation** | None
+False Negatives | We do not predict a fire and there is one | Households here are less likely to be prioritized for a kit, and these households will be less prepared for a fire and at greater risk for evacuation | None
 
 As the table illustrates, optimizing the algorithm for more false positives will incur a greater financial cost and these supply kits may not go to immediate use. Whereas, optimizing for more false negatives is potentially leaving more households underprepared for an evacuation. For that reason, from a social and moral perspective, we believe that the ultimate cost of false positives is less than the cost of false negatives.
 
@@ -908,7 +908,7 @@ This is simply for illustrative purposes. As our final algorithm ends up extrapo
 
 
 ## Finding the Optimal Threshold
-In order to best optimize this model for use, identifying the threshold that provides the greatest accuracy is important. This is done by running the `iterateThresholds` function and looking at the results for all thresholds the table of thresholds 0.01 through 0.99. The optimal threshold in this case is 0.65.
+In order to best optimize this model for use, identifying the **threshold that provides the greatest accuracy** is important. This is done by running the `iterateThresholds` function and looking at the results for all thresholds the table of thresholds 0.01 through 0.99. The optimal threshold in this case is **0.65**.
 
 ```{r iterate threshold function, message=FALSE, warning=FALSE}
 iterateThresholds <- function(data, group) {
@@ -957,7 +957,7 @@ allThresholds
 
 To assess how well this model performs across space, goodness of fit metrics are calculated across counties.
 
-This visualization below shows the prediction outcomes grouped by county, at the optimal threshold identified (0.65). Accuracy rate is the highest for Los Angeles and San Diego counties. Los Angeles County's negative rate is the second-lowest (behind Ventura). Due to its greater accuracy - coupled with the known degree of population density - Los Angeles presents an compelling space to dive in further when developing our application for evacuation kit distribution. 
+This visualization below shows the prediction outcomes grouped by county, at the optimal threshold identified (0.65). Accuracy rates are the highest for Los Angeles and San Diego counties. Santa Barbara has the greatest false negative rate, a noticable difference when compared to the rate for the other four counties. Due to its greater accuracy - coupled with the known condition of population density in the urban area - **Los Angeles presents an compelling space to dive in further as we develop our application for evacuation kit distribution.**
 
 ```{r counties - confusion matrix metrics, message=FALSE, warning=FALSE}
 
@@ -977,7 +977,7 @@ filter(testProbs.thresholds, Threshold == "0.65")%>%
 
 ```
 
-Here is an ROC plot showing the goodness of fit for each of the five counties evaluated. It measures trade-offs in trues positive and false positive rates for each threshold. Across all thresholds, this plot conveys that the model performs similarly for Orange and San Diego counties, the two furthest southern ones in the study area. This indicates that there may be some spatial processes at play at these local scales, or some additional features not captured in the model. The model does not perform as well for Santa Barbara (as indicated by the closer "hugging" of the coin-flip line, and even dipping below the line). This is consistent with the confusion matrix metrics shown in the bars above. It seems that this model is the most accurate when looking at Los Angeles and Ventura.
+Here is an ROC plot showing the goodness of fit for each of the five counties evaluated. It measures trade-offs in trues positive and false positive rates for each threshold. Across all thresholds, this plot conveys that the model performs similarly for Orange and San Diego counties, the two furthest southern ones in the study area. This indicates that there may be some spatial processes at play at these local scales, or some additional features not captured in the model. The model does not perform as well for Santa Barbara (as indicated by the closer “hugging” of the line, and even dipping below the line at some thresholds). This is consistent with the confusion matrix metrics shown in the bars above. It seems that this model is the most accurate when looking at Los Angeles and Ventura.
 
 ```{r counties ROC, message=FALSE, warning=FALSE}
 library(pROC)
@@ -1225,10 +1225,10 @@ finalDataSet <- vulnIndex %>% dplyr::left_join(fireProbabilities, left=TRUE)
 
 The `getPrioritizedCensusTracts()` function that can be used to invoke our algorithm and output a prioritized list of census tracts. The inputs for the function are:
 
-1. Total allocated budget (default: $250,000)
-2. Cost of the kit (default: $20)
-3. Percentage of households in each tract to distribute a kit (default: 100%)
-4. Amount of weight to give to fire risk score, vs. vulnerability index (default: 50%)
+1. **Total allocated budget** (default: $250,000)
+2. **Cost of the kit** (default: $20)
+3. **Percentage of households in each tract to distribute a kit** (default: 100%)
+4. **Amount of weight to give to fire risk score, vs. vulnerability index** (default: 50%)
 
 The function returns a dataset of all the Los Angeles County tracts with columns added to indicate whether or not they should receive kits and how many they should receive.
 
@@ -1274,7 +1274,7 @@ getPrioritizedCensusTracts <- function(budget = 250000, costOfKit = 20, pctOfTra
 
 ```
 
-The `getServedTractsPlot()` function uses the dataframe from `getPriotizedCensusTracts()` to generate a map of the tracts that can be served.
+The `getServedTractsPlot()` function uses the dataframe from `getPrioritizedCensusTracts()` to generate a map of the tracts that can be served.
 
 ```{r plot, message=FALSE, warning=FALSE}
 getServedTractsPlot <- function(df, ttl, st){
@@ -1331,8 +1331,8 @@ We are excited for the potential of CalKit to strategically distribute emergency
 
 Reflecting on the fire probability algorithm, we believe that this is an instrumental part of the final product. We have used historical data to create a model that predicts with a high degree of accuracy where fires may occur. The model generalizes reasonably well to most other counties around Los Angeles. In future work, we’d want to continue to improve the generalizability of the model, especially for areas like Santa Barbara that did not generalize as well. We also want to dive deeper into nuances across census tracts, running spatial cross-validation at this level and examining how well the model generalizes for different types of tracts (eg. tracts of lower and higher socioeconomic status).
 
-We believe that CalKit can also be extended to serve other geographic areas, such as other parts of Los Angeles County and neighboring counties with decent generalizability. Perhaps even more exciting is to think about the use cases that it may have for allocating other types of emergency relief – such as financial aid or COVID-19 vaccines. 
+We believe that CalKit can also be extended to serve other geographic areas, such as neighboring counties with decent generalizability. Perhaps even more exciting is to think about the use cases that it may have for allocating other types of emergency relief – such as financial aid or COVID-19 vaccines. 
 
-In short, we believe that this is just the beginning. We hope that 508 Analytics and the CalKit application can help communities make data-informed decisions when preparing for - and responding to - both emergency disasters and everyday problems.
+In short, we believe that this is just the beginning. We hope our CalKit application and its open source framework can help communities make data-informed decisions when preparing for - and responding to - both emergency disasters and everyday problems.
 
 — Jenna Epstein and Jeff Stern, December 2020
